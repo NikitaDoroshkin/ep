@@ -25,3 +25,15 @@ Untracked files:
         task1/
 
 nothing added to commit but untracked files present (use "git add" to track)
+
+
+
+
+
+
+After git clone
+===========================
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+nothing to commit, working tree clean
