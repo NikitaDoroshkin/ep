@@ -1,0 +1,17 @@
+commit 2d13b2ae167d55ec988d96fb60f96b45bf3ef195 (HEAD -> master)
+Author: Nikita Doroshkin <nikitadorshkin@gmail.com>
+Date:   Mon Feb 12 17:26:22 2018 +0300
+
+    add task1/status.txt
+
+commit 9370647f7889f435cc480e7d1260f94c95f71f2c
+Author: Nikita Doroshkin <nikitadorshkin@gmail.com>
+Date:   Mon Feb 12 17:20:15 2018 +0300
+
+    add .gitignore
+
+commit b85b7ab74c96d41e2ef2d81780e42679550494d1
+Author: Nikita Doroshkin <nikitadorshkin@gmail.com>
+Date:   Mon Feb 12 17:14:15 2018 +0300
+
+    add .gitignore
