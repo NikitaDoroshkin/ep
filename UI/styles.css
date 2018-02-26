@@ -1,3 +1,7 @@
+div, button, input, p {
+    font-family: 'Open Sans', sans-serif;
+}
+
 html {
     height: 100%;
     background: #fafafa;
@@ -132,6 +136,8 @@ header {
 }
 
 .post-footer {
+    display: flex;
+    flex-direction: column;
     padding: 0px 10px;
 }
 
@@ -177,4 +183,34 @@ header {
 .main-button:hover {
     background: #ebebeb;
     /* color: white; */
+}
+
+.hashtags-list {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 10px 0px;
+}
+
+.hashtag {
+    margin: 0px 1px;
+    padding: 0px 10px;
+    border-radius: 10px;
+    background: #ebebeb;
+    transition: all 0.5s ease 0s;
+    
+}
+
+.hashtag:hover{
+    background: #cccccc;
+}
+
+.far:hover, .fas:hover {
+    color: #4e4e4e;
+}
+
+footer p {
+    text-align:center;
+    padding-top: 30px;
+    font-size: 7pt;
 }

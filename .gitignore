@@ -1,6 +1,7 @@
-a*.iml
+*.iml
 .DS_Store/
 .idea/
 out/
 mockups.rar
 UI/.vscode
+task1/task1.iml
