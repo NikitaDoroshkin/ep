@@ -1,5 +1,5 @@
 var photoPosts = (function () {
-    var database = [
+    let database = [
         {
             id: '1',
             descriprion: 'Sample description',
@@ -16,7 +16,18 @@ var photoPosts = (function () {
         }
     ];
 
-    var editableFields = ['description', 'photoLink'];
+    const CONSTANTS = {
+        EXPRESSIONS: {
+            isString: (post, name) => post.hasOwnProperty(name) && typeof post[name] === 'string',
+            id: (post) => this.isString(post, 'id') && getPostById(post.id) != undefined,
+            descriprion: (post) => this.isString(post, 'description') && post.descriprion.length < 200,
+            createdAt: (post) => post.createdAt instanceof Date,
+            author: (post) => this.isString(post, 'author') && post.author.length > 0,
+            photoLink: (post) => this.isString(post, 'photoLink') && post.photoLink.length > 0
+        },
+        EDITABLE_FIELD: ['description', 'photoLink']
+    };
+
 
     function getPosts(skip = 0, top = 10, filterConfig) {
         if (!(typeof skip === 'number' && skip >= 0 && typeof top === 'number' && top >= 0))
@@ -25,31 +36,23 @@ var photoPosts = (function () {
                 descriprion: 'wrong arguments'
             };
 
-        var posts = [];
+        let applyFilters = (filterConfig == null || Object.keys(filterConfig).length === 0)
+            ? (post) => true
+            : (post) => {
+                let fields = Object.keys(filterConfig);
+                return fields.every((field) => post[field] === filterConfig[field])
+            };
 
-        var applyFilters = (filterConfig == null || Object.keys(filterConfig).length === 0) ?
-            function () { return true; } :
-            function applyFilters(post) {
-                var fields = Object.keys(filterConfig);
-                for (var i = 0; i < fields; i++)
-                    if (post[fields[i]] != filterConfig[fields[i]])
-                        return false;
-                return true;
-            }
-
-        for (var i = 0; i < top; i++) {
-            if (applyFilters(database[skip + i]))
-                posts.push(database[i]);
-        }
+        let posts = database.slice(skip, skip + top).filter(applyFilters);
 
         return {
-            type: 'succes',
+            type: 'success',
             posts: posts
         };
     }
 
     function getPostById(id) {
-        var post = database.find((element) => element.id == id);
+        let post = database.find((element) => element.id == id);
 
         if (post == undefined)
             return {
@@ -64,25 +67,10 @@ var photoPosts = (function () {
     }
 
     function validatePhotoPost(post, fieldList) {
-        var isString = (post, name) => post.hasOwnProperty(namr) && typeof post[name] === 'string';
-
-        var expressions = {
-            id: (post) => isString(post, 'id') && getPostById(post.id) != undefined,
-            descriprion: (post) => isString(post, 'description') && post.descriprion.length < 200,
-            createdAt: (post) => post.hasOwnProperty('createdAt') && post.createdAt instanceof Date,
-            author: (post) => isString(post, 'author') && post.author.length > 0,
-            photoLink: (post) => isString(post, 'photoLink') && post.photoLink.length > 0
-        }
-
         if (fieldList == null || fieldList.length == 0) {
-            fieldList = Object.keys(expressions);
+            fieldList = Object.keys(CONSTANTS.EXPRESSIONS);
         }
-
-        for (var i = 0; i < fieldList.length; i++)
-            if (!expressions[fieldList[i]](post))
-                return false;
-
-        return true;
+        return CONSTANTS.EXPRESSIONS.every((expression) => expression(post));
     }
 
     function addPhotoPost(post) {
@@ -93,21 +81,20 @@ var photoPosts = (function () {
     }
 
     function editPhotoPost(id, photoPost) {
-        var searchResult = getPostById(id);
+        let searchResult = getPostById(id);
         if (searchResult.type == 'error')
             return false;
 
-        var postToEdit = searchResult.post;
-        for (var i = 0; i < editableFields.length; i++) {
-            var currentField = editableFields[i];
-            if (validatePhotoPost(photoPost, currentField))
-                postToEdit[currentField] = photoPost[currentField];
-        }
+        let postToEdit = searchResult.post;
+        CONSTANTS.EDITABLE_FIELD.forEach((field) => {
+            if (validatePhotoPost(photoPost, field))
+                postToEdit[field] = photoPost[field];
+        });
         return true;
     }
 
     function removePhotoPost(id) {
-        var searchResult = getPostById(id);
+        let searchResult = getPostById(id);
         if (searchResult.type == 'error')
             return false;
         database.splice(database.indexOf(searchResult.post), 1);
