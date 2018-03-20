@@ -2,14 +2,14 @@ var photoPosts = (function () {
     let database = [
         {
             id: '1',
-            descriprion: 'Sample description',
+            description: 'Sample description',
             createdAt: new Date('2018-01-15T23:00:00'),
             author: 'username',
             photoLink: 'img/sampl1.jpg'
         },
         {
             id: '2',
-            descriprion: 'Sample description',
+            description: 'Sample description',
             createdAt: new Date('2018-02-23T23:30:00'),
             author: 'username',
             photoLink: 'img/sampl1.jpg'
