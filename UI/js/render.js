@@ -1,5 +1,6 @@
 var render = (function () {
     const TOP = 10;
+    var skip = 0;
 
     var user = 'Man';
 
@@ -31,7 +32,6 @@ var render = (function () {
                         type: 'password',
                         placeholder: 'Password'
                     }));
-                debugger;
                 let signInButton = element('button', 'main-button sign-in-confirm', 'Sign in');
                 signInButton.addEventListener('click', requestHandler.signIn);
                 modalContent.appendChild(signInButton);
@@ -66,7 +66,6 @@ var render = (function () {
     }
 
     function renderUser(data) {
-        debugger;
         let container = document.getElementsByClassName('user-container')[0];
         if (data != null) {
             container.removeChild(document.getElementsByClassName('sign-in-button')[0]);
@@ -89,24 +88,26 @@ var render = (function () {
         document.body.removeChild(modal);
     }
 
-    function renderFeed() {
+    function renderFeed(containerElement) {
+        debugger;
         let data = photoPosts.getPosts(0, TOP, {});
         if (data.type === 'success')
             data = data.posts;
 
-        for (let i = 0; i < TOP; i++)
+        for (let i = 0; i < data.length; i++)
             containerElement.insertBefore(addPost(data[i]),
                 containerElement.children[containerElement.children.length - 1]);
+        skip += 10;
     }
 
     function addPost(data) {
-        if (typeof data === 'number')
+        if (typeof data === 'number') {
             data = photoPosts.getPostById(data);
-        if (data.type === 'success')
-            data = data.post;
-        else
-            return false;
-
+            if (data.type === 'success')
+                data = data.post;
+            else
+                return false;
+        }
 
         let containerElement = getPostContainer(),
             postElement = element('article', 'post', '', { id: data.id });

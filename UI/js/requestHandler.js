@@ -2,7 +2,6 @@ var requestHandler = (function () {
     let skip = 0;
 
     function signIn() {
-        debugger;
         let username = document.getElementById('input-username').value,
             password = document.getElementById('input-password').value,
             user;
@@ -13,7 +12,7 @@ var requestHandler = (function () {
     }
 
     function loadMore() {
-
+        render.renderFeed(document.getElementsByClassName('post-container')[0]);
     }
 
     return {
