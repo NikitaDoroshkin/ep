@@ -3,6 +3,48 @@ var render = (function () {
 
     var user = 'Man';
 
+    var modals = {};
+
+    // <div id="signInForm" class="modal">
+    //     <div class="modal-content">
+    //         <p>Some text in the Modal Body</p>
+    //         <p>Some other text...</p>
+    //     </div>
+    // </div>
+
+    //to closure
+    function generateModal(type) {
+        let generators = {
+            signIn: function generateSignIn() {
+                let modal = element('div', 'modal'), //, null, { id: 'signInForm' }
+                    modalContent = element('div', 'modal-content');
+
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-username',
+                        type: 'text',
+                        placeholder: 'Username'
+                    }));
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-password',
+                        type: 'password',
+                        placeholder: 'Password'
+                    }));
+                modalContent.appendChild(element('button', 'main-button sign-in-button', 'Sign in',
+                    {
+                        onclick: 'requestHandler.signIn()'
+                    }));
+
+                modal.appendChild(modalContent);
+                modals[type] = modal;
+            }
+        }
+
+        if (!modals[type])
+            generators[type]();
+        return modals[type];
+    }
 
     function element(type, className, text, attributes) {
         var elem = document.createElement(type);
@@ -22,9 +64,19 @@ var render = (function () {
         return document.getElementsByClassName('post-container');
     }
 
-    function renderUser() {
-        if (user != null)
-            document.getElementsByClassName('current-username').innerText = user;
+    function renderUser(data) {
+        let container = document.getElementsByClassName('user-container')[0];
+        if (data != null) {
+            container.appendChild(element('div', null, data.userData.login));
+            container.appendChild(element('img', 'user-photo', null,
+                {
+                    src: data.userData.userPhoto,
+                    alt: 'User photo',
+                }));
+        }
+        else {
+            container.appendChild(element('button', null, 'login', { onclick: 'render.signInForm()' }));
+        }
     }
 
     function renderFeed() {
@@ -33,7 +85,8 @@ var render = (function () {
             data = data.posts;
 
         for (let i = 0; i < TOP; i++)
-            containerElement.insertBefore(addPost(data[i]), containerElement.children[1]);
+            containerElement.insertBefore(addPost(data[i]),
+                containerElement.children[containerElement.children.length - 1]);
     }
 
     function addPost(data) {
@@ -80,7 +133,7 @@ var render = (function () {
             function addHashtags(container) {
                 container.appendChild(element('div', 'hashtag', '#apples'));
             };
-            debugger;
+
             let footer = element('div', 'post-footer');
             let likesBar = element('div', 'likes-bar');
             let hashtags = element('div', 'hashtags-list');
@@ -121,17 +174,23 @@ var render = (function () {
         return true;
     }
 
+    function signInForm() {
+        debugger;
+        let modalName = 'signIn',
+            modal = generateModal(modalName);
+
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+    }
+
+
     return {
         renderFeed: renderFeed,
+        renderUser: renderUser,
         addPost: addPost,
         removePost: removePost,
         editPost: editPost,
-        renderUser
+        renderUser: renderUser,
+        signInForm: signInForm
     }
 })();
-
-window.onload = function (e) {
-    debugger;
-    let container= document.getElementsByClassName('post-container')[0];
-    container.insertBefore(render.addPost(1), container.children[1]);
-};
