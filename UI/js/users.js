@@ -14,10 +14,25 @@ var users = (function () {
         currentUser = userData;
     }
 
+    function authorize(username, password) {
+        if (username == 'a' && password == 'b') {
+            currentUser = {
+                logged: true,
+                userData: {
+                    id: 1,
+                    userName: 'user_login',
+                    userPhoto: 'img/user-photo.png'
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     function getUser() {
         if (!currentUser)
             initUser();
-        return currentUser.logged ? currentUser.userData.id : null;
+        return currentUser.logged ? currentUser : null;
     }
 
     function loadSession(key) {
@@ -29,7 +44,8 @@ var users = (function () {
     }
 
     return {
-        getUser: getUser
+        getUser: getUser,
+        authorize: authorize
     }
 
 })();

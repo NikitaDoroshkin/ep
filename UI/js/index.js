@@ -8,8 +8,6 @@ window.onload = init;
 
 window.onclick = function (event) {
     let modal = document.getElementsByClassName('modal')[0];
-    if (event.target == modal) {
-        document.body.removeChild(modal);
-    }
+    if (event.target == modal)
+        render.removeModal(modal);
 }
-

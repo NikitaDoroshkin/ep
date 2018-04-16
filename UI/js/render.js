@@ -31,10 +31,10 @@ var render = (function () {
                         type: 'password',
                         placeholder: 'Password'
                     }));
-                modalContent.appendChild(element('button', 'main-button sign-in-button', 'Sign in',
-                    {
-                        onclick: 'requestHandler.signIn()'
-                    }));
+                debugger;
+                let signInButton = element('button', 'main-button sign-in-confirm', 'Sign in');
+                signInButton.addEventListener('click', requestHandler.signIn);
+                modalContent.appendChild(signInButton);
 
                 modal.appendChild(modalContent);
                 modals[type] = modal;
@@ -48,7 +48,8 @@ var render = (function () {
 
     function element(type, className, text, attributes) {
         var elem = document.createElement(type);
-        elem.className = className;
+        if (className)
+            elem.className = className;
 
         if (text) {
             elem.innerText = text;
@@ -65,9 +66,11 @@ var render = (function () {
     }
 
     function renderUser(data) {
+        debugger;
         let container = document.getElementsByClassName('user-container')[0];
         if (data != null) {
-            container.appendChild(element('div', null, data.userData.login));
+            container.removeChild(document.getElementsByClassName('sign-in-button')[0]);
+            container.appendChild(element('div', null, data.userData.userName));
             container.appendChild(element('img', 'user-photo', null,
                 {
                     src: data.userData.userPhoto,
@@ -75,8 +78,15 @@ var render = (function () {
                 }));
         }
         else {
-            container.appendChild(element('button', null, 'login', { onclick: 'render.signInForm()' }));
+            let signInButton = element('button', 'sign-in-button', 'Sign in');
+            signInButton.addEventListener("click", render.signInForm);
+            container.appendChild(signInButton);
         }
+    }
+
+    function removeModal(modal) {
+        modal = modal || document.getElementsByClassName('modal')[0];
+        document.body.removeChild(modal);
     }
 
     function renderFeed() {
@@ -175,7 +185,6 @@ var render = (function () {
     }
 
     function signInForm() {
-        debugger;
         let modalName = 'signIn',
             modal = generateModal(modalName);
 
@@ -191,6 +200,7 @@ var render = (function () {
         removePost: removePost,
         editPost: editPost,
         renderUser: renderUser,
-        signInForm: signInForm
+        signInForm: signInForm,
+        removeModal: removeModal
     }
 })();
