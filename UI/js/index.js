@@ -1,6 +1,5 @@
 function init() {
     let container = document.getElementsByClassName('post-container')[0];
-    container.insertBefore(render.addPost(1), container.children[1]);
     render.renderUser(users.getUser());
     render.renderFeed(container);
 }

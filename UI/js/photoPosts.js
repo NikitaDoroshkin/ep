@@ -1,20 +1,5 @@
 var photoPosts = (function () {
-    let database = [
-        {
-            id: '1',
-            description: 'Sample description',
-            createdAt: new Date('2018-01-15T23:00:00'),
-            author: 'username',
-            photoLink: 'img/sampl1.jpg'
-        },
-        {
-            id: '2',
-            description: 'Sample description',
-            createdAt: new Date('2018-02-23T23:30:00'),
-            author: 'username',
-            photoLink: 'img/sampl1.jpg'
-        }
-    ];
+    let database;
 
     const CONSTANTS = {
         EXPRESSIONS: {
@@ -28,8 +13,13 @@ var photoPosts = (function () {
         EDITABLE_FIELD: ['description', 'photoLink']
     };
 
+    function loadDatabase() {
+        database = database || JSON.parse(window.localStorage.getItem('posts'));
+    }
 
     function getPosts(skip = 0, top = 10, filterConfig) {
+        loadDatabase();
+        
         if (!(typeof skip === 'number' && skip >= 0 && typeof top === 'number' && top >= 0))
             return {
                 type: 'error',

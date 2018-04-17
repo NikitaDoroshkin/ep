@@ -6,8 +6,8 @@ var requestHandler = (function () {
             password = document.getElementById('input-password').value,
             user;
         if (users.authorize(username, password)){
-            render.renderUser(users.getUser());
             render.removeModal();
+            render.renderUser(users.getUser());
         }
     }
 
