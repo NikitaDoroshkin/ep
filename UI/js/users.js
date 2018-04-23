@@ -23,7 +23,8 @@ var users = (function () {
                     userName: 'user_login',
                     userPhoto: 'img/user-photo.png'
                 }
-            }
+            };
+            saveSession('currentUser', JSON.stringify(currentUser));
             return true;
         }
         return false;
@@ -32,7 +33,7 @@ var users = (function () {
     function getUser() {
         if (!currentUser)
             initUser();
-        return currentUser.logged ? currentUser : null;
+        return currentUser.logged ? currentUser.userData : null;
     }
 
     function loadSession(key) {
@@ -43,9 +44,15 @@ var users = (function () {
         storage.setItem(key, data);
     }
 
+    function unauthorize() {
+        saveSession('currentUser', JSON.stringify({ logged: false }));
+        currentUser = { logged: false };
+    }
+
     return {
         getUser: getUser,
-        authorize: authorize
+        authorize: authorize,
+        unauthorize: unauthorize
     }
 
 })();

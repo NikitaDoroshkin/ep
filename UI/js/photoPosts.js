@@ -4,11 +4,11 @@ var photoPosts = (function () {
     const CONSTANTS = {
         EXPRESSIONS: {
             isString: (post, name) => post.hasOwnProperty(name) && typeof post[name] === 'string',
-            id: (post) => this.isString(post, 'id') && getPostById(post.id) != undefined,
-            descriprion: (post) => this.isString(post, 'description') && post.descriprion.length < 200,
-            createdAt: (post) => post.createdAt instanceof Date,
-            author: (post) => this.isString(post, 'author') && post.author.length > 0,
-            photoLink: (post) => this.isString(post, 'photoLink') && post.photoLink.length > 0
+            id: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'id') && post.id > database.length,
+            descriprion: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'description') && post.description.length < 200,
+            createdAt: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'createdAt'),
+            author: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'author') && post.author.length > 0,
+            photoLink: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'photoLink') && post.photoLink.length > 0
         },
         EDITABLE_FIELD: ['description', 'photoLink']
     };
@@ -17,9 +17,13 @@ var photoPosts = (function () {
         database = database || JSON.parse(window.localStorage.getItem('posts'));
     }
 
+    function saveDatabase() {
+        window.localStorage.setItem('posts', JSON.stringify(database));
+    }
+
     function getPosts(skip = 0, top = 10, filterConfig) {
         loadDatabase();
-        
+
         if (!(typeof skip === 'number' && skip >= 0 && typeof top === 'number' && top >= 0))
             return {
                 type: 'error',
@@ -59,14 +63,22 @@ var photoPosts = (function () {
     function validatePhotoPost(post, fieldList) {
         if (fieldList == null || fieldList.length == 0) {
             fieldList = Object.keys(CONSTANTS.EXPRESSIONS);
+            fieldList.splice(fieldList.indexOf('isString'), 1);
         }
-        return CONSTANTS.EXPRESSIONS.every((expression) => expression(post));
+        // debugger;
+        // for (let i = 0; i < fieldList.length; i++) {
+        //     let currFunc =CONSTANTS.EXPRESSIONS[fieldList[i]];
+        //     let result = currFunc(post);
+        // }
+        return fieldList.every((expression) => CONSTANTS.EXPRESSIONS[expression](post));
     }
 
     function addPhotoPost(post) {
+        post.id = (database.length + 1).toString();
         if (!validatePhotoPost(post))
             return false;
         database.push(post);
+        saveDatabase();
         return true;
     }
 
@@ -80,6 +92,7 @@ var photoPosts = (function () {
             if (validatePhotoPost(photoPost, field))
                 postToEdit[field] = photoPost[field];
         });
+        saveDatabase();
         return true;
     }
 
@@ -88,6 +101,7 @@ var photoPosts = (function () {
         if (searchResult.type == 'error')
             return false;
         database.splice(database.indexOf(searchResult.post), 1);
+        saveDatabase();
         return true;
     }
 

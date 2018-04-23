@@ -1,7 +1,8 @@
 function init() {
-    let container = document.getElementsByClassName('post-container')[0];
+    let postsContainer = document.getElementsByClassName('post-container')[0];
+
     render.renderUser(users.getUser());
-    render.renderFeed(container);
+    render.renderFeed(postsContainer);
 }
 
 window.onload = init;

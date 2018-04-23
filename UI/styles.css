@@ -109,10 +109,11 @@ header {
 
 .user-photo {
     border-radius: 100%;
-    margin-left: 10px;
+    margin: 0px 10px;
 }
 
-.post-container {
+.post-container, .main-container {
+    padding: 10px 0px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -168,7 +169,6 @@ header {
 
 .main-button-container {
     display: flex;
-    padding: 10px 0px;
 }
 
 .main-button, .more-posts {
@@ -296,4 +296,10 @@ footer p {
 
 .sign-in-confirm {
     width: 300px;
+}
+
+.modal-error {
+    align-self: center;
+    font-size: 0.75em;
+    color: red;
 }

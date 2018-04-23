@@ -1,211 +1,337 @@
-    var render = (function () {
-        const TOP = 10;
-        var skip = 0;
+var render = (function () {
+    const TOP = 10;
+    var skip = 0;
+    var modals = {};
 
-        var modals = {};
+    //to closure
+    function generateModal(type) {
+        let generators = {
+            signIn: () => {
+                let modal = element('div', 'modal'),
+                    modalContent = element('div', 'modal-content');
 
-        //to closure
-        function generateModal(type) {
-            let generators = {
-                signIn: function generateSignIn() {
-                    let modal = element('div', 'modal'), //, null, { id: 'signInForm' }
-                        modalContent = element('div', 'modal-content');
-
-                    modalContent.appendChild(element('input', 'filter', null,
-                        {
-                            id: 'input-username',
-                            type: 'text',
-                            placeholder: 'Username'
-                        }));
-                    modalContent.appendChild(element('input', 'filter', null,
-                        {
-                            id: 'input-password',
-                            type: 'password',
-                            placeholder: 'Password'
-                        }));
-                    let signInButton = element('button', 'main-button sign-in-confirm', 'Sign in');
-                    signInButton.addEventListener('click', requestHandler.signIn);
-                    modalContent.appendChild(signInButton);
-
-                    modal.appendChild(modalContent);
-                    modals[type] = modal;
-                }
-            }
-
-            if (!modals[type])
-                generators[type]();
-            return modals[type];
-        }
-
-        function element(type, className, text, attributes) {
-            var elem = document.createElement(type);
-            if (className)
-                elem.className = className;
-
-            if (text) {
-                elem.innerText = text;
-            }
-            if (attributes)
-                for (let attr in attributes)
-                    elem[attr] = attributes[attr];
-
-            return elem;
-        }
-
-        function getPostContainer() {
-            return document.getElementsByClassName('post-container');
-        }
-
-        function renderUser(data) {
-            let container = document.getElementsByClassName('user-container')[0];
-            if (data != null) {
-                container.removeChild(document.getElementsByClassName('sign-in-button')[0]);
-                container.appendChild(element('div', null, data.userData.userName));
-                container.appendChild(element('img', 'user-photo', null,
+                modalContent.appendChild(element('input', 'filter', null,
                     {
-                        src: data.userData.userPhoto,
-                        alt: 'User photo',
+                        id: 'input-username',
+                        type: 'text',
+                        placeholder: 'Username'
                     }));
-                reloadAuthorized();
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-password',
+                        type: 'password',
+                        placeholder: 'Password'
+                    }));
+                modalContent.appendChild(element('button', 'main-button sign-in-confirm', 'Sign in', null,
+                    {
+                        click: requestHandler.signIn
+                    }));
+
+                modal.appendChild(modalContent);
+                modals[type] = modal;
+            },
+            addPost: () => {
+                let modal = element('div', 'modal'),
+                    modalContent = element('div', 'modal-content');
+
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-photo',
+                        type: 'file',
+                        placeholder: 'Photo',
+                        accept: 'image/*'
+                    }));
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-tags',
+                        type: 'text',
+                        placeholder: 'Tags'
+                    }));
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-description',
+                        type: 'text',
+                        placeholder: 'Description'
+                    }));
+
+                modalContent.appendChild(element('button', 'main-button add-post-confirm', 'Add post', null,
+                    {
+                        click: requestHandler.addPost
+                    }));
+
+                modal.appendChild(modalContent);
+                modals[type] = modal;
+            },
+            editPost: () => {
+                let modal = element('div', 'modal'),
+                    modalContent = element('div', 'modal-content');
+
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-photo',
+                        type: 'file',
+                        placeholder: 'Photo',
+                        accept: 'image/*'
+                    }));
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-tags',
+                        type: 'text',
+                        placeholder: 'Tags'
+                    }));
+                modalContent.appendChild(element('input', 'filter', null,
+                    {
+                        id: 'input-description',
+                        type: 'text',
+                        placeholder: 'Description'
+                    }));
+
+                modalContent.appendChild(element('button', 'main-button edit-post-confirm', 'Save post', null,
+                    {
+                        click: requestHandler.editPost
+                    }));
+
+                modal.appendChild(modalContent);
+                modals[type] = modal;
             }
-            else {
-                let signInButton = element('button', 'sign-in-button', 'Sign in');
-                signInButton.addEventListener("click", render.signInForm);
-                container.appendChild(signInButton);
-            }
         }
 
-        function removeModal(modal) {
-            modal = modal || document.getElementsByClassName('modal')[0];
-            document.body.removeChild(modal);
+        if (!modals[type])
+            generators[type]();
+        return modals[type];
+    }
+
+    function element(type, className, text, attributes, events) {
+        var elem = document.createElement(type);
+        if (className)
+            elem.className = className;
+
+        if (text) {
+            elem.innerText = text;
         }
+        if (attributes)
+            for (let attr in attributes)
+                elem[attr] = attributes[attr];
+        if (events)
+            for (let event in events)
+                elem.addEventListener(event, events[event]);
 
-        function renderFeed(containerElement) {
-            debugger;
-            let data = photoPosts.getPosts(skip, TOP, {});
-            if (data.type === 'success')
-                data = data.posts;
+        return elem;
+    }
 
-            for (let i = 0; i < data.length; i++)
-                containerElement.insertBefore(addPost(data[i]),
-                    containerElement.children[containerElement.children.length - 1]);
-            skip += 10;
-            if (data.length < TOP)
-                document.getElementById('more-posts-button').setAttribute('disabled', 'disabled');
-        }
+    function getPostContainer() {
+        return document.getElementsByClassName('post-container');
+    }
 
-        function reloadAuthorized() {
-            skip = 0;
-            let container = document.getElementsByClassName('post-container')[0];
-            let count = container.childElementCount - 1;
-            for (let i = 1; i < count; i++)
-                container.removeChild(container.children[1]);
-            renderFeed(container);
-        }
+    function renderUser(userData) {
+        let userContainer = document.getElementsByClassName('user-container')[0];
+        let addPostButtonContainer = document.getElementById('add-new-post-button-container');
 
-        function addPost(data) {
-            if (typeof data === 'number') {
-                data = photoPosts.getPostById(data);
-                if (data.type === 'success')
-                    data = data.post;
-                else
-                    return false;
-            }
+        userContainer.innerHTML = "";
+        addPostButtonContainer.innerHTML = "";
+        if (userData != null) {
+            userContainer.appendChild(element('div', null, userData.userName));
+            userContainer.appendChild(element('img', 'user-photo', null,
+                {
+                    src: userData.userPhoto,
+                    alt: 'User photo',
+                }));
+            userContainer.appendChild(element('button', 'sign-out-button', 'Sign out', null,
+                { click: requestHandler.signOut }));
 
-            let containerElement = getPostContainer(),
-                postElement = element('article', 'post', '', { id: data.id });
-
-            function addHeader(postElement, data) {
-                let header = element('div', 'post-header');
-                let image = element('img', 'user-photo', null, {
-                    src: 'img/user-photo.png',
-                    alt: 'User photo'
+            let addPostButton = element('button', 'main-button', ' Add new post', null,
+                {
+                    click: render.addPostForm
                 });
-                let username = element('div', 'username', data.author);
-                header.appendChild(image);
-                header.appendChild(username);
+            addPostButton.insertBefore(element('i', 'fas fa-plus'), addPostButton.firstChild);
+            addPostButtonContainer.appendChild(addPostButton);
+        }
+        else {
+            userContainer.appendChild(element('button', 'sign-in-button', 'Sign in', null,
+                { click: render.signInForm }));
+        }
+    }
 
-                postElement.appendChild(header);
-            }
+    function removeModal(modal) {
+        function clearModal(modalContent) {
+            inputs = modalContent.getElementsByTagName('input');
+            for (let i = 0; i < inputs.length; i++)
+                inputs[i].value = '';
+            let error = modalContent.getElementsByClassName('modal-error');
+            if (error.length > 0)
+                modalContent.removeChild(error[0]);
 
-            function addImage(postElement, data) {
-                let imageContainer = element('div', 'post-image');
-                imageContainer.appendChild(element('img', null, null, { src: data.photoLink }));
-
-                postElement.appendChild(imageContainer);
-            }
-
-            function addFooter(postElement, data) {
-                function addLikesBar(container) {
-                    container.appendChild(element('i', 'far fa-heart'));
-                    let user = users.getUser();
-                    if (user && user.userData.userName === data.author) {
-                        container.appendChild(element('i', 'fas fa-edit'));
-                        container.appendChild(element('i', 'fas fa-trash'));
-                    }
-                };
-
-                function addHashtags(container) {
-                    container.appendChild(element('div', 'hashtag', '#apples'));
-                };
-
-                let footer = element('div', 'post-footer');
-                let likesBar = element('div', 'likes-bar');
-                let hashtags = element('div', 'hashtags-list');
-                addLikesBar(likesBar);
-                addHashtags(hashtags);
-                footer.appendChild(likesBar);
-                footer.appendChild(hashtags);
-                footer.innerHTML += data.description;
-
-                postElement.appendChild(footer);
-            }
-
-            addHeader(postElement, data);
-            addImage(postElement, data);
-            addFooter(postElement, data);
-
-            return postElement;
         }
 
-        function removePost(id) {
-            let postContainer = getPostContainer();
-            let postToRemove = postContainer.querySelector('#' + id);
-            if (postToRemove != null && photoPosts.removePhotoPost(id)) {
-                postToRemove.remove();
-                return true;
-            }
-            return false;
+        modal = modal || document.getElementsByClassName('modal')[0];
+        clearModal(modal.firstChild);
+        document.body.removeChild(modal);
+    }
+
+    function renderFeed(containerElement, reload) {
+        if (reload) {
+            skip = 0;
+            containerElement.innerHTML = "";
+            let loadMoreButton = document.getElementById('more-posts-button');
+            if (loadMoreButton.hasAttribute('disabled'))
+                loadMoreButton.removeAttribute('disabled');
         }
 
-        function editPost(id, changes) {
-            if (!photoPosts.editPhotoPost(id, changes))
+        let data = photoPosts.getPosts(skip, TOP, {});
+        if (data.type === 'success')
+            data = data.posts;
+
+        for (let i = 0; i < data.length; i++) {
+            containerElement.appendChild(addPost(data[i]));
+        }
+
+        let edits = containerElement.getElementsByClassName('fas fa-edit');
+        for (let i = 0; i < edits.length; i++){
+            edits[i].addEventListener('click', render.editPostForm);
+            edits[i].nextSibling.addEventListener('click', requestHandler.deletePost);
+            
+        }
+
+        skip += 10;
+        if (data.length < TOP)
+            document.getElementById('more-posts-button').setAttribute('disabled', 'disabled');
+    }
+
+    function addPost(data) {
+        if (typeof data === 'number') {
+            data = photoPosts.getPostById(data);
+            if (data.type === 'success')
+                data = data.post;
+            else
                 return false;
-            let postContainer = getPostContainer();
-            let postToEdit = postContainer.querySelector('#' + id);
-            if (postToEdit == null)
-                return false;
-            postToEdit.innerText = addPost(id).innerText;
+        }
+
+        let containerElement = getPostContainer(),
+            postElement = element('article', 'post', '', { id: data.id });
+
+        function addHeader(postElement, data) {
+            let header = element('div', 'post-header');
+            let image = element('img', 'user-photo', null, {
+                src: 'img/user-photo.png',
+                alt: 'User photo'
+            });
+            let username = element('div', 'username', data.author);
+            header.appendChild(image);
+            header.appendChild(username);
+
+            postElement.appendChild(header);
+        }
+
+        function addImage(postElement, data) {
+            let imageContainer = element('div', 'post-image');
+            imageContainer.appendChild(element('img', null, null, { src: data.photoLink }));
+
+            postElement.appendChild(imageContainer);
+        }
+
+        function addFooter(postElement, data) {
+            function addLikesBar(container) {
+                container.appendChild(element('i', 'far fa-heart'));
+                let user = users.getUser();
+                if (user && user.userName === data.author) {
+                    container.appendChild(element('i', 'fas fa-edit', null, { id: 'edit' + data.id }));
+                    container.appendChild(element('i', 'fas fa-trash'));
+                }
+            };
+
+            function addHashtags(container) {
+                container.appendChild(element('div', 'hashtag', '#apples'));
+            };
+
+            let footer = element('div', 'post-footer');
+            let likesBar = element('div', 'likes-bar');
+            let hashtags = element('div', 'hashtags-list');
+            addLikesBar(likesBar);
+            addHashtags(hashtags);
+            footer.appendChild(likesBar);
+            footer.appendChild(hashtags);
+            footer.innerHTML += data.description;
+
+            postElement.appendChild(footer);
+        }
+
+        addHeader(postElement, data);
+        addImage(postElement, data);
+        addFooter(postElement, data);
+
+        return postElement;
+    }
+
+    function removePost(id) {
+        let postContainer = getPostContainer();
+        let postToRemove = postContainer.querySelector('#' + id);
+        if (postToRemove != null && photoPosts.removePhotoPost(id)) {
+            postToRemove.remove();
             return true;
         }
+        return false;
+    }
 
-        function signInForm() {
-            let modalName = 'signIn',
-                modal = generateModal(modalName);
+    // function editPost(id, changes) {
+    //     if (!photoPosts.editPhotoPost(id, changes))
+    //         return false;
+    //     let postContainer = getPostContainer();
+    //     let postToEdit = postContainer.querySelector('#' + id);
+    //     if (postToEdit == null)
+    //         return false;
+    //     postToEdit.innerText = addPost(id).innerText;
+    //     return true;
+    // }
 
-            document.body.appendChild(modal);
-            modal.style.display = "block";
+    function signInForm() {
+        let modalName = 'signIn',
+            modal = generateModal(modalName);
+
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+    }
+
+    function addPostForm() {
+        let modalName = 'addPost',
+            modal = generateModal(modalName);
+
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+    }
+
+    function editPostForm(event) {
+        function fillData(postId, modalContent) {
+            let post = photoPosts.getPostById(postId).post;
+            modalContent.querySelector('#input-description').value = post.description;
+            modalContent.querySelector('#input-tags').value = '';
         }
+        debugger;
+        let postId = event.currentTarget.id.replace(/^\D+/g, '');
+        let modalName = 'editPost',
+            modal = generateModal(modalName);
+        fillData(postId, modal.firstChild);
 
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+    }
 
-        return {
-            renderFeed: renderFeed,
-            renderUser: renderUser,
-            addPost: addPost,
-            removePost: removePost,
-            editPost: editPost,
-            renderUser: renderUser,
-            signInForm: signInForm,
-            removeModal: removeModal
-        }
-    })();
+    function modalError(error, modal) {
+        modal = modal || document.getElementsByClassName('modal')[0];
+        modalContent = modal.firstChild;
+        modalContent.appendChild(element('div', 'modal-error', error));
+    }
+
+    return {
+        renderFeed: renderFeed,
+        renderUser: renderUser,
+        addPost: addPost,
+        removePost: removePost,
+        // editPost: editPost,
+        renderUser: renderUser,
+        signInForm: signInForm,
+        addPostForm: addPostForm,
+        removeModal: removeModal,
+        modalError: modalError,
+        editPostForm: editPostForm
+    }
+})();
