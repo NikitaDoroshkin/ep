@@ -5,7 +5,7 @@ var photoPosts = (function () {
         EXPRESSIONS: {
             isString: (post, name) => post.hasOwnProperty(name) && typeof post[name] === 'string',
             id: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'id') && post.id > database.length,
-            descriprion: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'description') && post.description.length < 200,
+            description: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'description') && post.description.length < 200,
             createdAt: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'createdAt'),
             author: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'author') && post.author.length > 0,
             photoLink: (post) => CONSTANTS.EXPRESSIONS.isString(post, 'photoLink') && post.photoLink.length > 0
@@ -14,15 +14,31 @@ var photoPosts = (function () {
     };
 
     function loadDatabase() {
-        database = database || JSON.parse(window.localStorage.getItem('posts'));
+        if (!database) {
+            const fs = require('fs');
+            var path = require('path');
+            database = JSON.parse(fs.readFileSync(__dirname + '/../../server/data/posts.json'));
+        }
+        return database;
     }
 
     function saveDatabase() {
-        window.localStorage.setItem('posts', JSON.stringify(database));
+        if(database){
+            const fs = require('fs');
+            var path = require('path');
+            fs.writeFile(__dirname + '/../../server/data/posts.json', JSON.stringify(database), (err) => {
+                if (err) throw err;
+            });
+        }
+       
+        // window.localStorage.setItem('posts', JSON.stringify(database));
     }
 
     function getPosts(skip = 0, top = 10, filterConfig) {
-        loadDatabase();
+        if (typeof skip === 'string')
+            skip = parseInt(skip)
+        if (typeof top === 'string')
+            top = parseInt(top)
 
         if (!(typeof skip === 'number' && skip >= 0 && typeof top === 'number' && top >= 0))
             return {
@@ -37,7 +53,7 @@ var photoPosts = (function () {
                 return fields.every((field) => post[field] === filterConfig[field])
             };
 
-        let posts = database.slice(skip, skip + top).filter(applyFilters);
+        let posts = loadDatabase().slice(skip, skip + top).filter(applyFilters);
 
         return {
             type: 'success',
@@ -46,7 +62,10 @@ var photoPosts = (function () {
     }
 
     function getPostById(id) {
-        let post = database.find((element) => element.id == id);
+        if (typeof id === 'string')
+            id = parseInt(id)
+
+        let post = loadDatabase().find((element) => element.id == id);
 
         if (post == undefined)
             return {
@@ -74,6 +93,8 @@ var photoPosts = (function () {
     }
 
     function addPhotoPost(post) {
+        loadDatabase();
+
         post.id = (database.length + 1).toString();
         if (!validatePhotoPost(post))
             return false;
@@ -89,7 +110,7 @@ var photoPosts = (function () {
 
         let postToEdit = searchResult.post;
         CONSTANTS.EDITABLE_FIELD.forEach((field) => {
-            if (validatePhotoPost(photoPost, field))
+            if (photoPost.hasOwnProperty(field) && validatePhotoPost(photoPost, new Array(field)))
                 postToEdit[field] = photoPost[field];
         });
         saveDatabase();
@@ -114,3 +135,6 @@ var photoPosts = (function () {
         removePhotoPost: removePhotoPost
     };
 })();
+
+
+module.exports = photoPosts;
